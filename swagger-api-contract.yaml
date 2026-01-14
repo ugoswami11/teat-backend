@@ -1,0 +1,335 @@
+openapi: 3.0.3
+
+info:
+  title: Test Evidence and Action Tracker API
+  description: REST APIs for managing test runs, executions, evidence, and action items.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local environment
+
+tags:
+  - name: Test Runs
+  - name: Test Cases
+  - name: Test Executions
+  - name: Action Items
+
+paths:
+
+  /test-runs:
+    post:
+      tags: [Test Runs]
+      summary: Create a new test run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTestRunRequest'
+      responses:
+        '201':
+          description: Test run created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRunResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    get:
+      tags: [Test Runs]
+      summary: Get all test runs
+      responses:
+        '200':
+          description: List of test runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestRunResponse'
+
+  /test-runs/{testRunId}/test-cases:
+    post:
+      tags: [Test Cases]
+      summary: Create a test case under a test run
+      parameters:
+        - $ref: '#/components/parameters/TestRunId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTestCaseRequest'
+      responses:
+        '201':
+          description: Test case created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestCaseResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    get:
+      tags: [Test Cases]
+      summary: Get test cases by test run
+      parameters:
+        - $ref: '#/components/parameters/TestRunId'
+      responses:
+        '200':
+          description: List of test cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestCaseResponse'
+
+  /test-cases/{testCaseId}/executions:
+    post:
+      tags: [Test Executions]
+      summary: Execute a test case
+      parameters:
+        - $ref: '#/components/parameters/TestCaseId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExecutionRequest'
+      responses:
+        '201':
+          description: Test execution created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestExecutionResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    get:
+      tags: [Test Executions]
+      summary: Get executions for a test case
+      parameters:
+        - $ref: '#/components/parameters/TestCaseId'
+      responses:
+        '200':
+          description: List of executions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestExecutionResponse'
+
+  /test-executions/{executionId}/action-items:
+    post:
+      tags: [Action Items]
+      summary: Create action item for failed execution
+      parameters:
+        - $ref: '#/components/parameters/ExecutionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateActionItemRequest'
+      responses:
+        '201':
+          description: Action item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionItemResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /action-items:
+    get:
+      tags: [Action Items]
+      summary: Get all action items
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, IN_PROGRESS, CLOSED]
+      responses:
+        '200':
+          description: List of action items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActionItemResponse'
+
+components:
+
+  parameters:
+    TestRunId:
+      name: testRunId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    TestCaseId:
+      name: testCaseId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    ExecutionId:
+      name: executionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    CreateTestRunRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 3
+        description:
+          type: string
+        createdBy:
+          type: string
+
+    TestRunResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateTestCaseRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+
+    TestCaseResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        testRunId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateExecutionRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [PASS, FAIL, BLOCKED]
+        evidence:
+          type: string
+        executedBy:
+          type: string
+
+    TestExecutionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        testCaseId:
+          type: string
+          format: uuid
+        status:
+          type: string
+        executedAt:
+          type: string
+          format: date-time
+
+    CreateActionItemRequest:
+      type: object
+      required: [description]
+      properties:
+        description:
+          type: string
+
+    ActionItemResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        executionId:
+          type: string
+          format: uuid
+        description:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Conflict:
+      description: Conflict (e.g. duplicate execution)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
