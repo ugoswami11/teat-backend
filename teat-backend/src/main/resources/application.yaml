@@ -2,18 +2,39 @@ server:
   port: 8080
 
 spring:
+  main:
+    web-application-type: servlet
+
   application:
     name: teat-backend
   datasource:
-    url: postgresql://db.umptwgohdposuitywdyg.supabase.co:5432/postgres?user=postgres&password=HVY2myobBXkqQ5Ps
+    url: jdbc:postgresql://aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres?ssl=true&sslmode=require
+    username: postgres.umptwgohdposuitywdyg
+    password: Teat@backend12345
+#    hikari:
+#      maximum-pool-size: 5
+#      connection-timeout: 30000
+#      hikari.data-source-properties:
+#        prepareThreshold: 0
+#      data-source-properties:
+#        preferQueryMode: simple
+
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+#logging:
+#  level:
+#    org.hibernate.tool.schema: DEBUG
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql: TRACE
