@@ -2,63 +2,31 @@ package com.teat.teat_backend.service;
 
 import com.teat.teat_backend.dto.request.CreateTestExecutionRequest;
 import com.teat.teat_backend.dto.response.TestExecutionResponse;
-import com.teat.teat_backend.entity.TestCase;
-import com.teat.teat_backend.entity.TestExecution;
-import com.teat.teat_backend.repository.TestCaseRepository;
-import com.teat.teat_backend.repository.TestExecutionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * DEPRECATED: This service is kept for backward compatibility only.
+ * Use {@link TestRunTestCaseService} and {@link TestRunTestCaseServiceImpl} instead.
+ * 
+ * The new design uses TestRunTestCase entity which properly tracks test execution
+ * within a specific test run, rather than just linking TestCase to TestExecution.
+ */
 @Service
 @RequiredArgsConstructor
+@Deprecated(since = "2.0.0", forRemoval = true)
 public class TestExecutionServiceImpl implements TestExecutionService {
-
-    private final TestExecutionRepository testExecutionRepository;
-    private final TestCaseRepository testCaseRepository;
 
     @Override
     public TestExecutionResponse executeTestCase(UUID testCaseId, CreateTestExecutionRequest request) {
-
-        TestCase testCase = testCaseRepository.findById(testCaseId)
-                .orElseThrow(() -> new RuntimeException("TestCase not found"));
-
-        if(testExecutionRepository.findByTestCaseId(testCaseId).isPresent()) {
-            throw new RuntimeException("TestCase already executed");
-        }
-
-        TestExecution testExecution = TestExecution.builder()
-                .testCase(testCase)
-                .executedBy(request.getExecutedBy())
-                .status(request.getStatus())
-                .evidence(request.getEvidence())
-                .build();
-
-        TestExecution savedTestExecution = testExecutionRepository.save(testExecution);
-
-        return TestExecutionResponse.builder()
-                .id(savedTestExecution.getId())
-                .testCaseId(testCaseId)
-                .executedBy(savedTestExecution.getExecutedBy())
-                .status(savedTestExecution.getStatus().toString())
-                .evidence(savedTestExecution.getEvidence())
-                .executedAt(savedTestExecution.getExecutedAt())
-                .build();
+        throw new UnsupportedOperationException("Use TestRunTestCaseService instead");
     }
 
     @Override
     public List<TestExecutionResponse> getTestExecutionsByTestCaseId(UUID testCaseId) {
-        return testExecutionRepository.findAllByTestCaseId(testCaseId).stream()
-                .map(testExecution -> TestExecutionResponse.builder()
-                        .id(testExecution.getId())
-                        .testCaseId(testCaseId)
-                        .executedBy(testExecution.getExecutedBy())
-                        .status(testExecution.getStatus().toString())
-                        .evidence(testExecution.getEvidence())
-                        .executedAt(testExecution.getExecutedAt())
-                        .build())
-                .toList();
+        throw new UnsupportedOperationException("Use TestRunTestCaseService instead");
     }
 }

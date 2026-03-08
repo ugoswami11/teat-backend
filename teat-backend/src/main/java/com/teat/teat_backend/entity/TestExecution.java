@@ -1,40 +1,15 @@
 package com.teat.teat_backend.entity;
 
-import com.teat.teat_backend.entity.enums.ExecutionStatus;
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-@Entity
-@Table(name = "test_executions", uniqueConstraints = @UniqueConstraint(columnNames = "test_case_id"))
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+/**
+ * DEPRECATED: This entity is kept for backward compatibility only.
+ * Use {@link TestRunTestCase} instead, which is the new execution instance table
+ * that properly tracks test execution within a specific test run.
+ *
+ * The new design separates execution instances from test definitions:
+ * - TestCase: Reusable test definition (independent of test runs)
+ * - TestRunTestCase: Execution instance (specific test case in a specific test run)
+ */
+@Deprecated(since = "2.0.0", forRemoval = true)
 public class TestExecution {
-
-    @Id
-    @GeneratedValue
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
-    private UUID id;
-
-    @OneToOne
-    @JoinColumn(name = "test_case_id", nullable = false, unique = true)
-    private TestCase testCase;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ExecutionStatus status;
-
-    private String evidence;
-
-    @Column(nullable = false)
-    private String executedBy;
-
-    @Column(name = "executed_at", insertable = false, updatable = false)
-    private LocalDateTime executedAt;
-
+    // This class is deprecated. Use TestRunTestCase instead.
 }
